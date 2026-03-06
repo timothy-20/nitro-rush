@@ -32,12 +32,12 @@ export class TrackManager {
     this.rebuildSpline(idx);
 
     scene.background = new THREE.Color(t.bg);
-    scene.fog = new THREE.Fog(t.fog, t.fogNear || 160, t.fogFar || 820);
+    scene.fog = new THREE.Fog(t.fog, t.fogNear ?? 160, t.fogFar ?? 820);
     (groundMesh.material as THREE.MeshStandardMaterial).color.setHex(t.gnd);
-    ambLight.color.setHex(t.ambColor || 0x101030);
-    ambLight.intensity = t.ambInt || 1.8;
-    dl.color.setHex(t.dlColor || 0xffffff);
-    dl.intensity = t.dlInt || 1.2;
+    ambLight.color.setHex(t.ambColor ?? 0x101030);
+    ambLight.intensity = t.ambInt ?? 1.8;
+    dl.color.setHex(t.dlColor ?? 0xffffff);
+    dl.intensity = t.dlInt ?? 1.2;
 
     // Clear old
     if (this.trackGroup) { this.disposeGroup(this.trackGroup); scene.remove(this.trackGroup); }
