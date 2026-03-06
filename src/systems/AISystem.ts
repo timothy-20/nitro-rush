@@ -1,7 +1,6 @@
 import type { System } from '@/ecs/System';
 import type { World } from '@/ecs/World';
 import { BASE_TRACK_HW } from '@/config/constants';
-import { COAST_DECAY } from '@/config/physics';
 import type { Game } from '@/core/Game';
 
 export class AISystem implements System {
