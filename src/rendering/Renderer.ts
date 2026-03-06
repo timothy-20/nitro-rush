@@ -9,6 +9,12 @@ export class Renderer {
   groundMesh: THREE.Mesh;
   gridHelper: THREE.GridHelper;
 
+  private handleResize = (): void => {
+    this.renderer.setSize(innerWidth, innerHeight);
+    this.camera.aspect = innerWidth / innerHeight;
+    this.camera.updateProjectionMatrix();
+  };
+
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -58,14 +64,15 @@ export class Renderer {
     sg.setAttribute('position', new THREE.Float32BufferAttribute(sv, 3));
     this.scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, sizeAttenuation: true })));
 
-    addEventListener('resize', () => {
-      this.renderer.setSize(innerWidth, innerHeight);
-      this.camera.aspect = innerWidth / innerHeight;
-      this.camera.updateProjectionMatrix();
-    });
+    addEventListener('resize', this.handleResize);
   }
 
   render(): void {
     this.renderer.render(this.scene, this.camera);
+  }
+
+  dispose(): void {
+    removeEventListener('resize', this.handleResize);
+    this.renderer.dispose();
   }
 }
