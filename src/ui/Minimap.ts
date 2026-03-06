@@ -6,6 +6,11 @@ export class Minimap {
   private readonly W = 150;
   private readonly H = 120;
 
+  private cachedSP: number[][] | null = null;
+  private mnX = 0; private mxX = 0;
+  private mnZ = 0; private mxZ = 0;
+  private sc = 1; private oX = 0; private oZ = 0;
+
   constructor() {
     this.canvas = document.getElementById('minimap') as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
@@ -23,11 +28,17 @@ export class Minimap {
     ctx.lineWidth = 1;
     ctx.strokeRect(0, 0, this.W, this.H);
 
-    const xs = SP.map(p => p[0]), zs = SP.map(p => p[1]);
-    const mnX = Math.min(...xs), mxX = Math.max(...xs), mnZ = Math.min(...zs), mxZ = Math.max(...zs);
-    const sc = Math.min((this.W - 16) / ((mxX - mnX) || 1), (this.H - 16) / ((mxZ - mnZ) || 1));
-    const oX = (this.W - (mxX - mnX) * sc) / 2 - mnX * sc;
-    const oZ = (this.H - (mxZ - mnZ) * sc) / 2 - mnZ * sc;
+    if (SP !== this.cachedSP) {
+      this.cachedSP = SP;
+      const xs = SP.map(p => p[0]), zs = SP.map(p => p[1]);
+      this.mnX = Math.min(...xs); this.mxX = Math.max(...xs);
+      this.mnZ = Math.min(...zs); this.mxZ = Math.max(...zs);
+      this.sc = Math.min((this.W - 16) / ((this.mxX - this.mnX) || 1), (this.H - 16) / ((this.mxZ - this.mnZ) || 1));
+      this.oX = (this.W - (this.mxX - this.mnX) * this.sc) / 2 - this.mnX * this.sc;
+      this.oZ = (this.H - (this.mxZ - this.mnZ) * this.sc) / 2 - this.mnZ * this.sc;
+    }
+
+    const { sc, oX, oZ } = this;
 
     // Track shape
     ctx.beginPath();
