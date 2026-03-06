@@ -19,6 +19,18 @@ interface HpRow {
 export class HUD {
   private lbRows: LbRow[] = [];
   private hpRows: HpRow[] = [];
+  private elLapVal: HTMLElement;
+  private elPosVal: HTMLElement;
+  private elSpdVal: HTMLElement;
+  private elSpdBarFill: HTMLElement;
+  private elDriftInd: HTMLElement;
+  private elReverseInd: HTMLElement;
+  private elViewInd: HTMLElement;
+  private elBoostBarFill: HTMLElement;
+  private elBoostLabel: HTMLElement;
+  private elRaceTimer: HTMLElement;
+  private elBestLapDisp: HTMLElement;
+  private elBpDots: HTMLElement[] = [];
 
   constructor() {
     const lbContainer = document.getElementById('lb-rows')!;
@@ -56,6 +68,19 @@ export class HUD {
       hpContainer.appendChild(hpRoot);
       this.hpRows.push({ root: hpRoot, name: hpName, fill: hpFill, val: hpVal });
     }
+
+    this.elLapVal = document.getElementById('lap-val')!;
+    this.elPosVal = document.getElementById('pos-val')!;
+    this.elSpdVal = document.getElementById('spd-val')!;
+    this.elSpdBarFill = document.getElementById('spd-bar-fill')!;
+    this.elDriftInd = document.getElementById('drift-indicator')!;
+    this.elReverseInd = document.getElementById('reverse-indicator')!;
+    this.elViewInd = document.getElementById('view-indicator')!;
+    this.elBoostBarFill = document.getElementById('boost-bar-fill')!;
+    this.elBoostLabel = document.getElementById('boost-label')!;
+    this.elRaceTimer = document.getElementById('race-timer')!;
+    this.elBestLapDisp = document.getElementById('best-lap-disp')!;
+    for (let i = 0; i < 7; i++) this.elBpDots.push(document.getElementById('bp' + i)!);
   }
 
   update(game: Game): void {
@@ -78,29 +103,27 @@ export class HUD {
     const pct = Math.min(1, absSpd / ph.baseMaxSpeed);
     const kmh = Math.round(absSpd * 0.18);
 
-    document.getElementById('lap-val')!.textContent = `${Math.min(prog.lap + 1, LAPS)}/${LAPS}`;
-    document.getElementById('pos-val')!.textContent = `${pos}/4`;
-    document.getElementById('spd-val')!.textContent = String(kmh);
+    this.elLapVal.textContent = `${Math.min(prog.lap + 1, LAPS)}/${LAPS}`;
+    this.elPosVal.textContent = `${pos}/4`;
+    this.elSpdVal.textContent = String(kmh);
 
-    const sf = document.getElementById('spd-bar-fill')!;
-    sf.style.width = Math.round(pct * 100) + '%';
-    sf.classList.toggle('boosting', veh.boostActive > 0);
+    this.elSpdBarFill.style.width = Math.round(pct * 100) + '%';
+    this.elSpdBarFill.classList.toggle('boosting', veh.boostActive > 0);
 
-    document.getElementById('drift-indicator')!.classList.toggle('active', veh.drifting);
-    document.getElementById('reverse-indicator')!.classList.toggle('active', ph.speed < -10);
-    document.getElementById('view-indicator')!.textContent = game.fpsCam ? '\u{1F3CE}\uFE0F HOOD VIEW [Q]' : '\u{1F3A5} 3RD PERSON [Q]';
+    this.elDriftInd.classList.toggle('active', veh.drifting);
+    this.elReverseInd.classList.toggle('active', ph.speed < -10);
+    this.elViewInd.textContent = game.fpsCam ? '\u{1F3CE}\uFE0F HOOD VIEW [Q]' : '\u{1F3A5} 3RD PERSON [Q]';
 
     const bp = veh.boostGauge, bOn = veh.boostActive > 0;
-    const fl = document.getElementById('boost-bar-fill')!;
-    fl.style.width = Math.round(bp * 100) + '%';
-    fl.style.background = bOn ? 'linear-gradient(90deg,#ff2200,#ffee00)' : 'linear-gradient(90deg,#ff6600,#ffdd00)';
-    fl.style.boxShadow = bOn ? '0 0 16px #ff4400' : '0 0 8px #ff6600';
+    this.elBoostBarFill.style.width = Math.round(bp * 100) + '%';
+    this.elBoostBarFill.style.background = bOn ? 'linear-gradient(90deg,#ff2200,#ffee00)' : 'linear-gradient(90deg,#ff6600,#ffdd00)';
+    this.elBoostBarFill.style.boxShadow = bOn ? '0 0 16px #ff4400' : '0 0 8px #ff6600';
 
     const lit = Math.ceil(bp * 7);
-    for (let i = 0; i < 7; i++) document.getElementById('bp' + i)!.classList.toggle('lit', i < lit);
-    document.getElementById('boost-label')!.textContent = bOn ? '\u{1F525} NITRO!' : (bp > 0.05 ? 'BOOST [SHIFT]' : 'DRIFT TO CHARGE');
-    document.getElementById('race-timer')!.textContent = fmtTime(game.gTime);
-    document.getElementById('best-lap-disp')!.textContent = `BEST LAP: ${prog.bestLap < 9999 ? fmtTime(prog.bestLap) : '--:--.---'}`;
+    for (let i = 0; i < 7; i++) this.elBpDots[i].classList.toggle('lit', i < lit);
+    this.elBoostLabel.textContent = bOn ? '\u{1F525} NITRO!' : (bp > 0.05 ? 'BOOST [SHIFT]' : 'DRIFT TO CHARGE');
+    this.elRaceTimer.textContent = fmtTime(game.gTime);
+    this.elBestLapDisp.textContent = `BEST LAP: ${prog.bestLap < 9999 ? fmtTime(prog.bestLap) : '--:--.---'}`;
 
     // Leaderboard — targeted DOM updates
     for (let i = 0; i < CAR_COUNT; i++) {
