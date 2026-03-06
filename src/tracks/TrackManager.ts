@@ -40,8 +40,8 @@ export class TrackManager {
     dl.intensity = t.dlInt || 1.2;
 
     // Clear old
-    if (this.trackGroup) scene.remove(this.trackGroup);
-    if (this.sceneryGroup) scene.remove(this.sceneryGroup);
+    if (this.trackGroup) { this.disposeGroup(this.trackGroup); scene.remove(this.trackGroup); }
+    if (this.sceneryGroup) { this.disposeGroup(this.sceneryGroup); scene.remove(this.sceneryGroup); }
 
     // Build new
     this.trackGroup = this.trackMeshBuilder.build(this.SP, this.SW, t);
@@ -53,5 +53,16 @@ export class TrackManager {
 
   getTrackDef(idx: number): TrackDefinition {
     return MAPS[idx];
+  }
+
+  private disposeGroup(group: THREE.Group): void {
+    group.traverse(obj => {
+      if (obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.Points) {
+        obj.geometry?.dispose();
+        const mat = obj.material;
+        if (Array.isArray(mat)) mat.forEach(m => m.dispose());
+        else mat?.dispose();
+      }
+    });
   }
 }
