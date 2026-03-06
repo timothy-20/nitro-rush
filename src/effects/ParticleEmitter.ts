@@ -37,14 +37,15 @@ export class ParticleEmitter {
     this.life[i] = 1;
   }
 
-  update(): void {
+  update(dt: number): void {
+    const s = dt * 60;
     for (let i = 0; i < this.max; i++) {
       if (this.life[i] <= 0) { this.pos[i * 3 + 1] = -999; continue; }
-      this.pos[i * 3] += this.vel[i * 3];
-      this.pos[i * 3 + 1] += this.vel[i * 3 + 1];
-      this.pos[i * 3 + 2] += this.vel[i * 3 + 2];
-      this.vel[i * 3 + 1] -= 0.018;
-      this.life[i] -= 0.018;
+      this.pos[i * 3] += this.vel[i * 3] * s;
+      this.pos[i * 3 + 1] += this.vel[i * 3 + 1] * s;
+      this.pos[i * 3 + 2] += this.vel[i * 3 + 2] * s;
+      this.vel[i * 3 + 1] -= 0.018 * s;
+      this.life[i] -= 0.018 * s;
     }
     this.geo.attributes.position.needsUpdate = true;
   }
