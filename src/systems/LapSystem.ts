@@ -40,7 +40,7 @@ export class LapSystem implements System {
           }
         }
       }
-      prog.lapTime += dt;
+      if (!veh.dead && !prog.done) prog.lapTime += dt;
       prog.total = prog.lap * SN + prog.prog;
     }
   }

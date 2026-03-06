@@ -3,7 +3,6 @@ import { World } from '@/ecs/World';
 import type { Entity } from '@/ecs/Entity';
 import { StateMachine } from './StateMachine';
 import { InputManager } from './InputManager';
-import { EventBus } from './EventBus';
 import { Renderer } from '@/rendering/Renderer';
 import { TrackManager } from '@/tracks/TrackManager';
 import { HUD } from '@/ui/HUD';
@@ -30,7 +29,6 @@ export class Game {
   trackManager: TrackManager;
   stateMachine: StateMachine;
   inputManager: InputManager;
-  eventBus: EventBus;
   hud!: HUD;
   minimap!: Minimap;
   screens!: Screens;
@@ -44,6 +42,7 @@ export class Game {
   playerEntity?: Entity;
   carEntities: Entity[] = [];
   explosions: (Explosion | MiniExplosion)[] = [];
+  private cameraSystem?: CameraSystem;
 
   private lapNotifyTO: number | null = null;
   private bannerTO: number | null = null;
@@ -57,7 +56,6 @@ export class Game {
     this.trackManager = new TrackManager();
     this.stateMachine = new StateMachine();
     this.inputManager = new InputManager();
-    this.eventBus = new EventBus();
   }
 
   init(): void {
@@ -182,7 +180,8 @@ export class Game {
     this.ecsWorld.addSystem(new CollisionSystem(this));
     this.ecsWorld.addSystem(new LapSystem(this));
     this.ecsWorld.addSystem(new EffectSystem(this));
-    this.ecsWorld.addSystem(new CameraSystem(this));
+    this.cameraSystem = new CameraSystem(this);
+    this.ecsWorld.addSystem(this.cameraSystem);
   }
 
   killCar(entity: Entity): void {
@@ -305,10 +304,8 @@ export class Game {
 
     if (state === 'countdown') {
       // Camera follows player during countdown
-      if (this.ecsWorld) {
-        // Just update camera system
-        const camSys = new CameraSystem(this);
-        camSys.update(this.ecsWorld, 0);
+      if (this.ecsWorld && this.cameraSystem) {
+        this.cameraSystem.update(this.ecsWorld, 0);
       }
       this.renderer.render();
       return;

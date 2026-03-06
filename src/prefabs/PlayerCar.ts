@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { World } from '@/ecs/World';
 import type { Entity } from '@/ecs/Entity';
-import { COLORS_HEX, COLORS_CSS, NAMES, BASE_TRACK_HW } from '@/config/constants';
+import { COLORS_HEX, COLORS_CSS, NAMES } from '@/config/constants';
 import { BASE_MAX_SPEED } from '@/config/physics';
 import { makeCar } from '@/rendering/CarMeshFactory';
 import { ParticleEmitter } from '@/effects/ParticleEmitter';

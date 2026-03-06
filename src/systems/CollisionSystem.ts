@@ -2,6 +2,7 @@ import type { System } from '@/ecs/System';
 import type { World } from '@/ecs/World';
 import { BASE_TRACK_HW } from '@/config/constants';
 import { CAR_RADIUS, CAR_SCRAPE_DIST, DMG_GLOBAL, CAR_DMG_MULT } from '@/config/physics';
+import { findNearestTrackPoint } from '@/utils/physics';
 import { MiniExplosion } from '@/effects/ExplosionEffect';
 import type { Game } from '@/core/Game';
 
@@ -32,15 +33,7 @@ export class CollisionSystem implements System {
       const tW = SW[ni] || BASE_TRACK_HW;
       const wallR = tW - 3;
 
-      // Get distance
-      let best = 1e9;
-      for (let d = -75; d <= 75; d++) {
-        const i = (ni + d + SN) % SN;
-        const dx = SP[i][0] - tr.x, dz = SP[i][1] - tr.z;
-        const dd = dx * dx + dz * dz;
-        if (dd < best) best = dd;
-      }
-      const nd = Math.sqrt(best);
+      const { dist: nd } = findNearestTrackPoint(tr.x, tr.z, SP, ni, 5, 5);
       const absSpd = Math.abs(ph.speed);
 
       if (nd > wallR) {

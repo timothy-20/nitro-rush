@@ -39,35 +39,38 @@ export class InputManager {
     ArrowRight: 'right', KeyD: 'right',
   };
 
-  private bindKeyboard(): void {
-    addEventListener('keydown', (e: KeyboardEvent) => {
-      if (this.KM[e.code]) this.keys[this.KM[e.code]] = true;
-      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.keys.nitro = true;
-      if (e.code === 'Space') {
-        const st = this.getState?.();
-        if (st === 'start') this.onStart?.();
-        else if (st === 'finish') this.onMenu?.();
-        else this.keys.brake = true;
-        e.preventDefault();
-      }
-      if (e.code === 'Enter') {
-        const st = this.getState?.();
-        if (st === 'start') this.onStart?.();
-        else if (st === 'finish') this.onMenu?.();
-      }
-      if (e.code === 'KeyR' && this.getState?.() === 'finish') this.onRestart?.();
-      if (e.code === 'KeyQ') {
-        const st = this.getState?.();
-        if (st === 'racing' || st === 'finish') this.onToggleView?.();
-      }
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
-    });
+  private handleKeyDown = (e: KeyboardEvent): void => {
+    if (this.KM[e.code]) this.keys[this.KM[e.code]] = true;
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.keys.nitro = true;
+    if (e.code === 'Space') {
+      const st = this.getState?.();
+      if (st === 'start') this.onStart?.();
+      else if (st === 'finish') this.onMenu?.();
+      else this.keys.brake = true;
+      e.preventDefault();
+    }
+    if (e.code === 'Enter') {
+      const st = this.getState?.();
+      if (st === 'start') this.onStart?.();
+      else if (st === 'finish') this.onMenu?.();
+    }
+    if (e.code === 'KeyR' && this.getState?.() === 'finish') this.onRestart?.();
+    if (e.code === 'KeyQ') {
+      const st = this.getState?.();
+      if (st === 'racing' || st === 'finish') this.onToggleView?.();
+    }
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
+  };
 
-    addEventListener('keyup', (e: KeyboardEvent) => {
-      if (this.KM[e.code]) this.keys[this.KM[e.code]] = false;
-      if (e.code === 'Space') this.keys.brake = false;
-      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.keys.nitro = false;
-    });
+  private handleKeyUp = (e: KeyboardEvent): void => {
+    if (this.KM[e.code]) this.keys[this.KM[e.code]] = false;
+    if (e.code === 'Space') this.keys.brake = false;
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') this.keys.nitro = false;
+  };
+
+  private bindKeyboard(): void {
+    addEventListener('keydown', this.handleKeyDown);
+    addEventListener('keyup', this.handleKeyUp);
   }
 
   private bindMobile(): void {
@@ -88,5 +91,10 @@ export class InputManager {
     document.getElementById('start-btn')?.addEventListener('click', () => this.onStart?.());
     document.getElementById('btn-restart')?.addEventListener('click', () => this.onRestart?.());
     document.getElementById('btn-menu')?.addEventListener('click', () => this.onMenu?.());
+  }
+
+  dispose(): void {
+    removeEventListener('keydown', this.handleKeyDown);
+    removeEventListener('keyup', this.handleKeyUp);
   }
 }

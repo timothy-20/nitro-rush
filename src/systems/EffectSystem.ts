@@ -23,7 +23,7 @@ export class EffectSystem implements System {
       const doSmoke = canDrift || (brk && !canDrift && absSpd > 30);
 
       // Exhaust
-      particles.exhaust.update();
+      particles.exhaust.update(dt);
 
       // Smoke
       if (doSmoke) {
@@ -46,7 +46,7 @@ export class EffectSystem implements System {
           }
         }
       }
-      particles.smoke.update();
+      particles.smoke.update(dt);
       particles.sparks.update(dt);
 
       // Apply mesh transform

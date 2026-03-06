@@ -86,7 +86,7 @@ export class Explosion {
       this.life[i] -= dt * 0.9;
       alive++;
     }
-    (this.mesh.material as THREE.PointsMaterial).opacity = Math.max(0, this.life[0] * 1.2);
+    (this.mesh.material as THREE.PointsMaterial).opacity = Math.max(0, alive / this.max * 1.5);
     this.geo.attributes.position.needsUpdate = true;
     if (alive === 0) { scene.remove(this.mesh); this.done = true; }
   }

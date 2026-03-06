@@ -6,14 +6,32 @@ interface RecordEntry {
   date: string;
 }
 
-const RECORDS: Record<string, RecordEntry[]> = {};
+const STORAGE_KEY = 'nitro-rush-records';
+
+function loadRecords(): Record<string, RecordEntry[]> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch { /* ignore corrupt data */ }
+  return {};
+}
+
+function saveRecords(): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(RECORDS));
+  } catch { /* storage full or unavailable */ }
+}
+
+const RECORDS: Record<string, RecordEntry[]> = loadRecords();
 
 export function addRecord(name: string, time: number, bestLap: number): number {
   if (!RECORDS[name]) RECORDS[name] = [];
-  RECORDS[name].push({ time, lap: bestLap, date: new Date().toLocaleDateString('ko-KR') });
+  const entry: RecordEntry = { time, lap: bestLap, date: new Date().toLocaleDateString('ko-KR') };
+  RECORDS[name].push(entry);
   RECORDS[name].sort((a, b) => a.time - b.time);
   if (RECORDS[name].length > 10) RECORDS[name].length = 10;
-  return RECORDS[name].findIndex(r => r.time === time && r.lap === bestLap);
+  saveRecords();
+  return RECORDS[name].indexOf(entry);
 }
 
 export function renderRecords(name: string, newIdx: number): void {
