@@ -26,11 +26,12 @@ const RECORDS: Record<string, RecordEntry[]> = loadRecords();
 
 export function addRecord(name: string, time: number, bestLap: number): number {
   if (!RECORDS[name]) RECORDS[name] = [];
-  RECORDS[name].push({ time, lap: bestLap, date: new Date().toLocaleDateString('ko-KR') });
+  const entry: RecordEntry = { time, lap: bestLap, date: new Date().toLocaleDateString('ko-KR') };
+  RECORDS[name].push(entry);
   RECORDS[name].sort((a, b) => a.time - b.time);
   if (RECORDS[name].length > 10) RECORDS[name].length = 10;
   saveRecords();
-  return RECORDS[name].findIndex(r => r.time === time && r.lap === bestLap);
+  return RECORDS[name].indexOf(entry);
 }
 
 export function renderRecords(name: string, newIdx: number): void {
