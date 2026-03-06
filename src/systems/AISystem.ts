@@ -1,7 +1,7 @@
 import type { System } from '@/ecs/System';
 import type { World } from '@/ecs/World';
 import { BASE_TRACK_HW } from '@/config/constants';
-import { applyPosition } from '@/utils/physics';
+import { applyPosition, findNearestTrackPoint } from '@/utils/physics';
 import type { Game } from '@/core/Game';
 
 export class AISystem implements System {
@@ -32,16 +32,8 @@ export class AISystem implements System {
         continue;
       }
 
-      // AI nearPtForward
-      let best = 1e9, bi = prog.trackI;
-      for (let d = -10; d <= 60; d++) {
-        const i = (prog.trackI + d + SN) % SN;
-        const dx = SP[i][0] - tr.x, dz = SP[i][1] - tr.z;
-        const dd = dx * dx + dz * dz;
-        if (dd < best) { best = dd; bi = i; }
-      }
-      prog.trackI = bi;
-      const nd = Math.sqrt(best);
+      const { dist: nd, trackI: newI } = findNearestTrackPoint(tr.x, tr.z, SP, prog.trackI, 10, 60);
+      prog.trackI = newI;
 
       const spdF = Math.max(0.15, Math.abs(ph.speed) / ph.baseMaxSpeed);
       const look = Math.round(10 + spdF * ai.lookahead);
@@ -90,7 +82,7 @@ export class AISystem implements System {
       // Wall collision recovery
       const wallR = tW - 3;
       if (nd > wallR) {
-        const np = SP[bi], px = tr.x - np[0], pz = tr.z - np[1], pl = Math.sqrt(px * px + pz * pz) || 1;
+        const np = SP[newI], px = tr.x - np[0], pz = tr.z - np[1], pl = Math.sqrt(px * px + pz * pz) || 1;
         const fwd = (prog.trackI + 6) % SN;
         let ra = Math.atan2(SP[fwd][0] - tr.x, SP[fwd][1] - tr.z) - tr.ang;
         while (ra > Math.PI) ra -= Math.PI * 2;

@@ -1,12 +1,8 @@
 import type { System } from '@/ecs/System';
 import type { World } from '@/ecs/World';
-import type { Transform } from '@/components/Transform';
-import type { Physics } from '@/components/Physics';
-import type { Vehicle } from '@/components/Vehicle';
-import type { TrackProgress } from '@/components/TrackProgress';
 import { BASE_TRACK_HW } from '@/config/constants';
 import { ACCEL_RATE, BRAKE_RATE, COAST_DECAY, NORMAL_CAP_RATIO, BOOST_CAP_RATIO } from '@/config/physics';
-import { applyPosition } from '@/utils/physics';
+import { applyPosition, findNearestTrackPoint } from '@/utils/physics';
 import type { Game } from '@/core/Game';
 
 export class VehicleSystem implements System {
@@ -43,9 +39,9 @@ export class VehicleSystem implements System {
       }
 
       veh.turn = trn;
-      const ni = prog.trackI;
-      const tW = SW[ni] || BASE_TRACK_HW;
-      const nd = this.nearPtDist(tr, SP, prog);
+      const { dist: nd, trackI: newI } = findNearestTrackPoint(tr.x, tr.z, SP, prog.trackI, 75, 75);
+      prog.trackI = newI;
+      const tW = SW[prog.trackI] || BASE_TRACK_HW;
       const onRoad = nd < tW + 2;
       const sm = onRoad ? 1 : 0.28;
       ph.onRoad = onRoad;
@@ -103,19 +99,5 @@ export class VehicleSystem implements System {
 
       applyPosition(tr, ph, dt);
     }
-  }
-
-  private nearPtDist(tr: Transform, SP: number[][], prog: TrackProgress): number {
-    let best = 1e9;
-    let bi = prog.trackI;
-    const SN = SP.length;
-    for (let d = -75; d <= 75; d++) {
-      const i = (prog.trackI + d + SN) % SN;
-      const dx = SP[i][0] - tr.x, dz = SP[i][1] - tr.z;
-      const dd = dx * dx + dz * dz;
-      if (dd < best) { best = dd; bi = i; }
-    }
-    prog.trackI = bi;
-    return Math.sqrt(best);
   }
 }
