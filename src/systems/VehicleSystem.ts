@@ -6,6 +6,7 @@ import type { Vehicle } from '@/components/Vehicle';
 import type { TrackProgress } from '@/components/TrackProgress';
 import { BASE_TRACK_HW } from '@/config/constants';
 import { ACCEL_RATE, BRAKE_RATE, COAST_DECAY, NORMAL_CAP_RATIO, BOOST_CAP_RATIO } from '@/config/physics';
+import { applyPosition } from '@/utils/physics';
 import type { Game } from '@/core/Game';
 
 export class VehicleSystem implements System {
@@ -22,7 +23,7 @@ export class VehicleSystem implements System {
 
       if (veh.dead) {
         ph.speed = Math.max(0, ph.speed - 200 * dt);
-        this.applyPosition(tr, ph, dt);
+        applyPosition(tr, ph, dt);
         continue;
       }
 
@@ -100,19 +101,8 @@ export class VehicleSystem implements System {
       const vSnap = canDrift ? 3 : sB ? 15 : 11;
       tr.velAng += Math.sign(vd) * Math.min(Math.abs(vd), vSnap * dt);
 
-      this.applyPosition(tr, ph, dt);
+      applyPosition(tr, ph, dt);
     }
-  }
-
-  private applyPosition(tr: Transform, ph: Physics, dt: number): void {
-    tr.x += Math.sin(tr.velAng) * ph.speed * dt;
-    tr.z += Math.cos(tr.velAng) * ph.speed * dt;
-    tr.x += ph.bvx * dt;
-    tr.z += ph.bvz * dt;
-    const bD = Math.pow(0.04, dt);
-    ph.bvx *= bD; ph.bvz *= bD;
-    if (Math.abs(ph.bvx) < 0.5) ph.bvx = 0;
-    if (Math.abs(ph.bvz) < 0.5) ph.bvz = 0;
   }
 
   private nearPtDist(tr: Transform, SP: number[][], prog: TrackProgress): number {

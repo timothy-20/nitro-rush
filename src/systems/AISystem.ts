@@ -1,6 +1,7 @@
 import type { System } from '@/ecs/System';
 import type { World } from '@/ecs/World';
 import { BASE_TRACK_HW } from '@/config/constants';
+import { applyPosition } from '@/utils/physics';
 import type { Game } from '@/core/Game';
 
 export class AISystem implements System {
@@ -21,13 +22,13 @@ export class AISystem implements System {
 
       if (veh.dead) {
         ph.speed = Math.max(0, ph.speed - 200 * dt);
-        this.applyPosition(tr, ph, dt);
+        applyPosition(tr, ph, dt);
         continue;
       }
 
       if (prog.done) {
         ph.speed = Math.max(0, ph.speed - 200 * dt);
-        this.applyPosition(tr, ph, dt);
+        applyPosition(tr, ph, dt);
         continue;
       }
 
@@ -84,7 +85,7 @@ export class AISystem implements System {
       const vSnap = 14;
       tr.velAng += Math.sign(vd) * Math.min(Math.abs(vd), vSnap * dt);
 
-      this.applyPosition(tr, ph, dt);
+      applyPosition(tr, ph, dt);
 
       // Wall collision recovery
       const wallR = tW - 3;
@@ -98,16 +99,5 @@ export class AISystem implements System {
         tr.velAng += ra * 0.15;
       }
     }
-  }
-
-  private applyPosition(tr: { x: number; z: number; velAng: number }, ph: { speed: number; bvx: number; bvz: number }, dt: number): void {
-    tr.x += Math.sin(tr.velAng) * ph.speed * dt;
-    tr.z += Math.cos(tr.velAng) * ph.speed * dt;
-    tr.x += ph.bvx * dt;
-    tr.z += ph.bvz * dt;
-    const bD = Math.pow(0.04, dt);
-    ph.bvx *= bD; ph.bvz *= bD;
-    if (Math.abs(ph.bvx) < 0.5) ph.bvx = 0;
-    if (Math.abs(ph.bvz) < 0.5) ph.bvz = 0;
   }
 }
