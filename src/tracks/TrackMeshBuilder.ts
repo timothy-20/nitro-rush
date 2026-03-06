@@ -131,7 +131,7 @@ export class TrackMeshBuilder {
     const geo = new THREE.PlaneGeometry(hw * 2, 5, 8, 1);
     geo.rotateX(-Math.PI / 2);
     const cv = new Float32Array(geo.attributes.position.count * 3);
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 9; i++) {
       const c = i % 2 ? [1, 1, 1] : [0, 0, 0];
       for (let j = 0; j < 2; j++) { const b = (i * 2 + j) * 3; cv[b] = c[0]; cv[b + 1] = c[1]; cv[b + 2] = c[2]; }
     }
