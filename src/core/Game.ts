@@ -3,7 +3,6 @@ import { World } from '@/ecs/World';
 import type { Entity } from '@/ecs/Entity';
 import { StateMachine } from './StateMachine';
 import { InputManager } from './InputManager';
-import { EventBus } from './EventBus';
 import { Renderer } from '@/rendering/Renderer';
 import { TrackManager } from '@/tracks/TrackManager';
 import { HUD } from '@/ui/HUD';
@@ -30,7 +29,6 @@ export class Game {
   trackManager: TrackManager;
   stateMachine: StateMachine;
   inputManager: InputManager;
-  eventBus: EventBus;
   hud!: HUD;
   minimap!: Minimap;
   screens!: Screens;
@@ -57,7 +55,6 @@ export class Game {
     this.trackManager = new TrackManager();
     this.stateMachine = new StateMachine();
     this.inputManager = new InputManager();
-    this.eventBus = new EventBus();
   }
 
   init(): void {
